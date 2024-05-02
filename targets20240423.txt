@@ -1,0 +1,6 @@
+THINGS TO DO:
+1. Add modules to z-project with different conditions - Done.
+2. Automate antennal lobe detection in each plane
+3. Count surface area for antennal lobe for each plane
+4. Add to reach volume for antennal lobe
+5. Repeat for Beta lobes (mushroom body)
