@@ -1,6 +1,6 @@
-function allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, nPlanes, removeRed, plotPlanes)
+function allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, nPlanes, removeRed, plotPlanes, stepSize)
 
-for plane = startPlane:nPlanes
+for plane = startPlane:stepSize:nPlanes
     if MenzelData == 1
         if plane == 1
             continue
@@ -41,18 +41,20 @@ for plane = startPlane:nPlanes
     if plotPlanes
         % Visualize
         fig1 = figure(1);
-        set(fig1,'Position', [0, 0, 1200, 400]);
-        clf
-        subplot(1, 2, 1)
-        imagesc(myImage)
-        title(sprintf("Z-plane: %i (-red)", plane))
-        colorbar
-
-        subplot(1, 2, 2)
+        % set(fig1,'Position', [0, 0, 1200, 400]);
+        % clf
+        % subplot(1, 2, 1)
+        % imagesc(myImage)
+        % title(sprintf("Z-plane: %i (-red)", plane))
+        % colorbar
+        % 
+        % subplot(1, 2, 2)
         imagesc(myImage_gray)
         title("Grayscale")
         colormap("gray")
         colorbar
+
+        %pause(0.5)
     end
 
     close(t) %Close tiff object

@@ -15,7 +15,8 @@ zProjectAlgoList = ["Average Intensity"; "Max Intensity"; "Min Intensity"; "Medi
 %Operations
 saveData = 0; % Binary switch. 0: No (for testing). 1: Yes (for production run).
 removeRed = 0; % Binary switch. 0: No; 1: Yes.
-plotPlanes = 0; % Binary switch. 0: No; 1: Yes.
+plotPlanes = 1; % Binary switch. 0: No; 1: Yes.
+stepSize = 2; % in confocal z-steps
 zProject = 1; % Binary switch. 0: No; 1: Yes.
 gaussianSmoothing = 0; % Binary switch. 0: Nco; 1: Yes
 brainReconstruct = 0; % Binary switch. 0: No; 1: Yes.
@@ -24,11 +25,11 @@ MenzelData = 1; % Categorical Switch. 0: Use normal data
 
 HOME_DIR = '/Users/ananth/Documents/Bee/beeConfocalAnalysis';
 DATA_DIR = '/Users/ananth/Desktop/Work/DATA/beeConfocal';
-nPlanes = 30; % number of Z-planes (may vary with dataset)
+nPlanes = 100; % number of Z-planes (may vary with dataset)
 startPlane = 1;
 
 % Load each confocal plane, independently
-allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, nPlanes, removeRed, plotPlanes);
+allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, nPlanes, removeRed, plotPlanes, stepSize);
 
 if zProject
     plotZProjections(allPlanes_gray, zProjectAlgoList)
