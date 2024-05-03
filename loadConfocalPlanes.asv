@@ -2,22 +2,17 @@ function allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, n
 
 for plane = startPlane:nPlanes
     if MenzelData == 1
-        if plane == 1
-            continue
-        end
-
-        if plane > 1 && plane <10
-            filename = sprintf("%s/HBSGrey/HBSGrey000%i.tif", DATA_DIR, plane);
+        if plane <10
+            filename = sprintf("%s/HBSGrey/HBSGrey000%i", DATA_DIR, plane);
         elseif plane >= 10 && plane < 100
-            filename = sprintf("%s/HBSGrey/HBSGrey00%i.tif", DATA_DIR, plane);
+            filename = sprintf("%s/HBSGrey/HBSGrey00%i", DATA_DIR, plane);
         else
-            filename = sprintf("%s/HBSGrey/HBSGrey0%i.tif", DATA_DIR, plane);
-        end
+            filename = sprintf("%s/HBSGrey/HBSGrey")
     else
         if plane < 10
-            filename = sprintf("%s/GuardBee2_HiveG/Image 1_z0%i.tif", DATA_DIR, plane);
+            filename = sprintf("%s/Image 1_z0%i.tif", DATA_DIR, plane);
         else
-            filename = sprintf("%s/GuardBee2_HiveG/Image 1_z%i.tif", DATA_DIR, plane);
+            filename = sprintf("%s/Image 1_z%i.tif", DATA_DIR, plane);
         end
     end
 
@@ -32,11 +27,7 @@ for plane = startPlane:nPlanes
 
     % Convert to grayscale
     disp(">>>>>> [INFO] Converting to grayscale ...")
-    if MenzelData == 1
-        myImage_gray = im2gray(myImage);
-    else
-        myImage_gray = rgb2gray(myImage);
-    end
+    myImage_gray = rgb2gray(myImage);
 
     if plotPlanes
         % Visualize

@@ -18,7 +18,7 @@ for algo = 1:length(zProjectAlgoList)
     elseif algo == 4 % Median
         zProject_gray = squeeze(prctile(allPlanes_gray, 50, 1)); %50th percentile = median
     elseif algo == 5 % Standard Deviation
-        zProject_gray = squeeze(std(allPlanes_gray, 1));
+        zProject_gray = squeeze(std(double(allPlanes_gray), 0, 1)); % w = 0
     elseif algo == 6 % Sum slices
         zProject_gray = squeeze(sum(allPlanes_gray, 1));
     else

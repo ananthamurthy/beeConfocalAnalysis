@@ -17,29 +17,18 @@ saveData = 0; % Binary switch. 0: No (for testing). 1: Yes (for production run).
 removeRed = 0; % Binary switch. 0: No; 1: Yes.
 plotPlanes = 0; % Binary switch. 0: No; 1: Yes.
 zProject = 1; % Binary switch. 0: No; 1: Yes.
-gaussianSmoothing = 0; % Binary switch. 0: No; 1: Yes
+gaussianSmoothing = 0; % Binary switch. 0: Nco; 1: Yes
 brainReconstruct = 0; % Binary switch. 0: No; 1: Yes.
 brainReconstructAlgorithm = 2; % Integer from 1 to 2. Here, 1. Iterative Shape Algorithm (ISA); 2. Virtual Insect Brain (VIB)
+MenzelData = 1; % Categorical Switch. 0: Use normal data
 
 HOME_DIR = '/Users/ananth/Documents/Bee/beeConfocalAnalysis';
-DATA_DIR = '/Users/ananth/Desktop/Work/DATA/beeConfocal/GuardBee2_HiveG';
-
+DATA_DIR = '/Users/ananth/Desktop/Work/DATA/beeConfocal';
 nPlanes = 30; % number of Z-planes (may vary with dataset)
-allPlanes_gray = zeros(nPlanes, 4016, 4016);
 startPlane = 1;
 
-for plane = startPlane:nPlanes
-    if plane < 10
-        filename = sprintf("%s/Image 1_z0%i.tif", DATA_DIR, plane);
-    else
-        filename = sprintf("%s/Image 1_z%i.tif", DATA_DIR, plane);
-    end
-
-    fprintf(">>> [INFO] Currently on plane %i ...\n", plane)
-
-    t = Tiff(filename, 'r');
-    
-end
+% Load each confocal plane, independently
+allPlanes_gray = loadConfocalPlanes(MenzelData, DATA_DIR, startPlane, nPlanes, removeRed, plotPlanes);
 
 if zProject
     plotZProjections(allPlanes_gray, zProjectAlgoList)
