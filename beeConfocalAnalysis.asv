@@ -1,0 +1,151 @@
+%{
+DATASETS: Reshma Basak
+AUTHOR: Kambadur Ananthamurthy
+PURPOSE: Floads the various .tif files in "~/Desktop/DATA/beeConfocal/", labels brain segments, and plots the surface area for each.
+NOTES:
+%}
+
+tic %Start time for code run
+
+clear
+close all
+
+zProjectAlgoList = ["Average Intensity"; "Max Intensity"; "Min Intensity"; "Median"; "Standard Deviation"; "Sum Slices"];
+
+%Operations
+saveData = 0; % Binary switch. 0: No (for testing). 1: Yes (for production run).
+removeRed = 0; % Binary switch. 0: No; 1: Yes.
+plotPlanes = 0; % Binary switch. 0: No; 1: Yes.
+zProject = 1; % Binary switch. 0: No; 1: Yes.
+gaussianSmoothing = 0; % Binary switch. 0: No; 1: Yes
+brainReconstruct = 0cl; % Binary switch. 0: No; 1: Yes.
+brainReconstructAlgorithm = 2; % Integer from 1 to 2. Here, 1. Iterative Shape Algorithm (ISA); 2. Virtual Insect Brain (VIB)
+
+HOME_DIR = '/Users/ananth/Documents/Bee/beeConfocalAnalysis';
+DATA_DIR = '/Users/ananth/Desktop/Work/DATA/beeConfocal/GuardBee2_HiveG';
+
+nPlanes = 30; % number of Z-planes (may vary with dataset)
+allPlanes_gray = zeros(nPlanes, 4016, 4016);
+startPlane = 1;
+
+for plane = startPlane:nPlanes
+    if plane < 10
+        filename = sprintf("%s/Image 1_z0%i.tif", DATA_DIR, plane);
+    else
+        filename = sprintf("%s/Image 1_z%i.tif", DATA_DIR, plane);
+    end
+
+    disp(strcat("[INFO] Currently on dataset: ", filename))
+
+    t = Tiff(filename, 'r');
+    myImage = read(t);
+
+    if removeRed
+        myImage(:, :, 1) = 0; %removing red channel
+        disp(">>> [INFO] Red channel values set to 0 ...")
+    end
+
+    % Convert to grayscale
+    disp(">>> [INFO] Converting to grayscale ...")
+    myImage_gray = rgb2gray(myImage);
+
+    if plotPlanes
+        % Visualize
+        fig1 = figure(1);
+        set(fig1,'Position', [0, 0, 1200, 400]);
+        clf
+        subplot(1, 2, 1)
+        imagesc(myImage)
+        title(sprintf("Z-plane: %i (-red)", plane))
+        colorbar
+
+        subplot(1, 2, 2)
+        imagesc(myImage_gray)
+        title("Grayscale")
+        colormap("gray")
+        colorbar
+    end
+
+    close(t) %Close tiff object
+
+    allPlanes_gray(plane, :, :) = myImage_gray;
+end
+
+if zProject
+    zProject_gray = zeros(squeeze(size(allPlanes_gray, 2, 3))); %Initialization
+
+    % Visualize z-projection
+    fig2 = figure(2);
+    set(fig2, 'Position', [0, 0, 1200, 800])
+    clf
+    for algo = 1:length(zProjectAlgoList)
+        fprintf(">>> [INFO] Establishing Z-Projections ...")
+        fprintf(">>>>>> ... Algorithm: %s ...\n", zProjectAlgoList(algo))
+        %Z-Projection
+        if algo == 1 % Average across slices
+            zProject_gray = squeeze(mean(allPlanes_gray, 1));
+        elseif algo == 2 % Maximum Intensity
+            zProject_gray = squeeze(max(allPlanes_gray));
+        elseif algo == 3 % Minimum Intensity
+            zProject_gray = squeeze(min(allPlanes_gray));
+        elseif algo == 4 % Median
+            zProject_gray = squeeze(prctile(allPlanes_gray, 50, 1)); %50th percentile = median
+        elseif algo == 5 % Standard Deviation
+            zProject_gray = squeeze(std(allPlanes_gray, 1));
+        elseif algo == 6 % Sum slices
+            zProject_gray = squeeze(sum(allPlanes_gray, 1));
+        else
+            error('Unknown Z-Projection Algorithm ... Aborting.')
+        end
+        
+        % Visualize z-projection
+        if ndims(zProject_gray) == 2
+            subplot(2, 3, algo) %algo = 1 to 6
+            imagesc(zProject_gray)
+            title(sprintf("Z-Projection | %s", zProjectAlgoList(algo)))
+            colorbar
+            colormap("gray")
+        else
+            warning("The Z-Projection image is not 2D for Algo %i ... Skipping plot.", algo)
+            continue
+        end
+    end
+    disp("[INFO] ... Done!")
+end
+
+if brainReconstruct
+    disp("[INFO] Reconstructing the brain ...")
+
+    if gaussianSmoothing
+        sigma = 2;
+        X = imgaussfilt(allPlanes_gray, sigma); %Main/Processed set of slices
+    else
+        X = allPlanes_gray;
+    end
+
+    if brainReconstructAlgorithm == 1 % Iterative Shape Algorithm/Method (ISA)
+        %{
+            NOTE: this algorithm is usually used when registering many different
+            brains to the same averaged sample image. It removes
+            variabliity.
+            
+            STEPS:
+            1. Choose a random image to register to from z-stack (per
+            animal)
+            2. Affine registration of all images to this initial reference
+            image
+            3. Iterative non-rigid registration
+        %}
+    elseif brainReconstructAlgorithm == 2 % Virtual Insect Brain (VIB)
+        %{
+            NOTE: this algorithm is usually used when it is required to
+            preserve the variability differences across samples.
+        %}
+    else
+        error("Unknown Brain Reconstruction Algorithm ... Aborting.")
+    end
+    disp("[INFO] ... Done!")
+end
+
+disp("[INFO] ... All Done!")
+estimatedTime = toc;
